@@ -1548,18 +1548,56 @@
     const todoForm = document.getElementById('todoForm');
     const todoInput = document.getElementById('todoInput');
     const todoSaveBtn = document.getElementById('todoSaveBtn');
-    if (todoAddBtn && todoForm && todoInput) {
-      todoAddBtn.addEventListener('click', () => {
-        todoForm.classList.toggle('active');
-        if (todoForm.classList.contains('active')) setTimeout(() => todoInput.focus(), 80);
+    function openTodoMemoInput() {
+      if (!todoForm || !todoInput || !todoSaveBtn) return;
+      todoForm.classList.add('active');
+      todoInput.value = '';
+      todoSaveBtn.disabled = true;
+      requestAnimationFrame(() => {
+        setTimeout(() => todoInput.focus({ preventScroll: false }), 40);
       });
+    }
+    function cancelEmptyTodoMemoInput() {
+      if (!todoForm || !todoInput || !todoSaveBtn) return;
+      if (todoInput.value.trim().length === 0) {
+        todoInput.value = '';
+        todoSaveBtn.disabled = true;
+        todoForm.classList.remove('active');
+      }
+    }
+    if (todoAddBtn && todoForm && todoInput) {
+      todoAddBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openTodoMemoInput();
+      });
+      todoAddBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        openTodoMemoInput();
+      }, { passive: false });
     }
     if (todoInput && todoSaveBtn) {
       todoInput.addEventListener('input', () => { todoSaveBtn.disabled = todoInput.value.trim().length === 0; });
       todoInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !todoSaveBtn.disabled) todoSaveBtn.click(); });
+      todoInput.addEventListener('blur', () => {
+        setTimeout(() => {
+          if (document.activeElement !== todoSaveBtn) cancelEmptyTodoMemoInput();
+        }, 120);
+      });
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+          setTimeout(() => {
+            if (todoForm.classList.contains('active') && document.activeElement !== todoInput) {
+              cancelEmptyTodoMemoInput();
+            }
+          }, 160);
+        });
+      }
       todoSaveBtn.addEventListener('click', () => {
         const note = todoInput.value.trim();
-        if (!note) return;
+        if (!note) {
+          cancelEmptyTodoMemoInput();
+          return;
+        }
         todoMemos.push({ id: 'todo_' + Date.now().toString(), note });
         saveTodoMemos(); todoInput.value = ''; todoSaveBtn.disabled = true; todoForm.classList.remove('active'); renderTodoMemos();
       });
