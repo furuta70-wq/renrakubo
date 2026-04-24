@@ -686,6 +686,10 @@
       50%{box-shadow:0 0 0 4px rgba(37,111,230,.95),0 18px 36px rgba(37,111,230,.28);transform:translateY(-1px);}
     }
 
+
+    /* v36: summary swipe layer uses only text, no check-complete HUD */
+    .summary-swipe-card .swipe-bg{justify-content:flex-end!important;padding-right:16px!important;}
+    .summary-swipe-card .swipe-complete-label{font-size:13px;font-weight:900;letter-spacing:.05em;}
   </style>
 </head>
 <body>
@@ -896,7 +900,7 @@
 
           const leftBg = document.createElement('div');
           leftBg.className = 'swipe-bg active-card';
-          leftBg.innerHTML = '<span class="swipe-complete-pill"><span>✓</span><span>完了</span></span><span class="swipe-complete-label">左スワイプで完了</span>';
+          leftBg.innerHTML = '<span class="swipe-complete-label">左スワイプで完了</span>';
           wrap.appendChild(leftBg);
 
           const card = document.createElement('div');
